@@ -281,7 +281,7 @@ module.exports = function gdax (conf) {
             time: new Date(trade.time).getTime(),
             size: Number(trade.size),
             price: Number(trade.price),
-            side: trade.side
+            side: trade.side === 'sell' ? 'buy' : 'sell' // gdax is opposite to other exchanges! https://docs.pro.coinbase.com/#get-trades
           }
         })
         newTrades.reverse()
@@ -291,20 +291,25 @@ module.exports = function gdax (conf) {
         cache.trade_ids = cache.trade_ids.slice(fromIndex)
         return
       }
-      if(so.debug) console.log('getproducttrades call')
+      // if(so.debug) console.log('getproducttrades call', opts.product_id, 'args=', args)
       client.getProductTrades(opts.product_id, args, function (err, resp, body) {
         if (!err) err = statusErr(resp, body)
-        if (err) return retry('getTrades', func_args, err)
+        if (err) {
+          console.log('err=', err)
+          return retry('getTrades', func_args, err)
+        }
         var trades = body.map(function (trade) {
           return {
             trade_id: trade.trade_id,
             time: new Date(trade.time).getTime(),
             size: Number(trade.size),
             price: Number(trade.price),
-            side: trade.side
+            side: trade.side === 'sell' ? 'buy' : 'sell' // gdax is opposite to other exchanges! https://docs.pro.coinbase.com/#get-trades
           }
         })
         trades.reverse()
+        if(so.debug && trades.length > 0) console.log(new Date().toISOString(), 'got trade count ', trades.length, ' range: ',
+          new Date(trades[0].time).toISOString(),'-', new Date(trades[trades.length - 1].time).toISOString())
         cb(null, trades)
       })
     },

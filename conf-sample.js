@@ -28,6 +28,8 @@ c.gdax = {}
 c.gdax.key = process.env.ZENBOT_GDAX_API_KEY || 'YOUR-API-KEY'
 c.gdax.b64secret = process.env.ZENBOT_GDAX_B64_SECRET || 'YOUR-API-SECRET'
 c.gdax.passphrase = process.env.ZENBOT_GDAX_PASSPHRASE || 'YOUR-API-PASSPHRASE'
+c.gdax.apiURI = 'https://api.pro.coinbase.com'
+c.gdax.websocketURI = 'wss://ws-feed.pro.coinbase.com'
 
 // to enable Poloniex trading, enter your API credentials:
 c.poloniex = {}

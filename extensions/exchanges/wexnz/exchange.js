@@ -5,8 +5,12 @@
 // the buy, sell, cancelOrderand getOrderfunctions
 //
 var WEXNZ = require('wexnz')
+var minimist = require('minimist')
 
 module.exports = function container (conf) {
+  var s = {options: minimist(process.argv)}
+  var so = s.options
+
   var public_client, authed_client
 
   function publicClient () {
@@ -84,7 +88,16 @@ module.exports = function container (conf) {
         args.after = opts.to
       }
       client.trades({ pair: pair, count: 100000000 }, function (err, body) {
-        if (err) return retry('getTrades', func_args, err)
+        if (err) {
+          if (err.code === 'ENOTFOUND') {
+            console.log(err)
+            cb(err)
+            return
+          } else {
+            console.log(err.code, 'retrying...')
+            return retry('getTrades', func_args, err)
+          }
+        }
         var trades = body.map(function (trade) {
           return {
             trade_id: trade.tid,
@@ -95,6 +108,8 @@ module.exports = function container (conf) {
             side: trade.trade_type
           }
         })
+        if (so.debug && trades.length > 0) console.log(new Date().toISOString(), 'got trade count ', trades.length, ' range: ',
+          new Date(trades[trades.length - 1].time).toISOString(),'-', new Date(trades[0].time).toISOString())
         cb(null, trades)
       })
     },

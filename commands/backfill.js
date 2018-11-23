@@ -92,7 +92,7 @@ module.exports = function (program, conf) {
           if (err) {
             console.error('err backfilling selector: ' + selector.normalized)
             console.error(err)
-            if (err.code === 'ETIMEDOUT' || err.code === 'ENOTFOUND' || err.code === 'ECONNRESET') {
+            if (err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET') {
               console.error('retrying...')
               setImmediate(getNext)
               return
